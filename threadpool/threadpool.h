@@ -32,6 +32,7 @@ private:
     sem m_queuestat;            //是否有任务需要处理
     connection_pool *m_connPool;  //数据库
     int m_actor_model;          //模型切换
+    cond m_queueCond;           // 条件变量，用来避免线程池惊群效应        
 };
 template <typename T>
 threadpool<T>::threadpool( int actor_model, connection_pool *connPool, int thread_number, int max_requests) : m_actor_model(actor_model),m_thread_number(thread_number), m_max_requests(max_requests), m_threads(NULL),m_connPool(connPool)
@@ -72,7 +73,8 @@ bool threadpool<T>::append(T *request, int state)
     request->m_state = state;
     m_workqueue.push_back(request);
     m_queuelocker.unlock();
-    m_queuestat.post();
+    // m_queuestat.post();
+    m_queueCond.signal();
     return true;
 }
 template <typename T>
@@ -86,7 +88,8 @@ bool threadpool<T>::append_p(T *request)
     }
     m_workqueue.push_back(request);
     m_queuelocker.unlock();
-    m_queuestat.post();
+    // m_queuestat.post();
+    m_queueCond.signal();
     return true;
 }
 template <typename T>
@@ -101,12 +104,13 @@ void threadpool<T>::run()
 {
     while (true)
     {
-        m_queuestat.wait();
+        // m_queuestat.wait();
         m_queuelocker.lock();
         if (m_workqueue.empty())
         {
-            m_queuelocker.unlock();
-            continue;
+            // m_queuelocker.unlock();
+            m_queueCond.wait(m_queuelocker.get());
+            // continue;
         }
         T *request = m_workqueue.front();
         m_workqueue.pop_front();

@@ -2,10 +2,10 @@
 
 int main(int argc, char *argv[])
 {
-    //需要修改的数据库信息,登录名,密码,库名
-    string user = "root";
-    string passwd = "root";
-    string databasename = "qgydb";
+    //需要修改的t数据库信息,登录名,密码,库名
+    string user = "jianing";
+    string passwd = "1234";
+    string databasename = "yourdb";
 
     //命令行解析
     Config config;
