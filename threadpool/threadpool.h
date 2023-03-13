@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <exception>
 #include <pthread.h>
+#include <iostream>
 #include "../lock/locker.h"
 #include "../CGImysql/sql_connection_pool.h"
 
@@ -106,11 +107,9 @@ void threadpool<T>::run()
     {
         // m_queuestat.wait();
         m_queuelocker.lock();
-        if (m_workqueue.empty())
+        while (m_workqueue.empty()) // 此处用while循环，原因见 最新版Web服务器项目详解 - 09 日志系统（上）
         {
-            // m_queuelocker.unlock();
             m_queueCond.wait(m_queuelocker.get());
-            // continue;
         }
         T *request = m_workqueue.front();
         m_workqueue.pop_front();
