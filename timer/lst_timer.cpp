@@ -1,21 +1,6 @@
 #include "lst_timer.h"
 #include "../http/http_conn.h"
 
-// sort_timer_lst::sort_timer_lst()
-// {
-//     head = NULL;
-//     tail = NULL;
-// }
-// sort_timer_lst::~sort_timer_lst()
-// {
-//     util_timer *tmp = head;
-//     while (tmp)
-//     {
-//         head = tmp->next;
-//         delete tmp;
-//         tmp = head;
-//     }
-// }
 tw_timer::tw_timer(int rot, int ts) : prev(nullptr), \
     next(nullptr), rotation(rot), time_slot(ts){};
 
@@ -36,7 +21,7 @@ time_wheel::~time_wheel() {
     }
 }
 
-tw_timer* time_wheel::add_timer(int timeout) {
+tw_timer* time_wheel::add_timer(int timeout) { 
     if(timeout < 0) return nullptr;
     int ticks = 0;
     if (timeout < SI) ticks = 1;
@@ -52,12 +37,12 @@ tw_timer* time_wheel::add_timer(int timeout) {
     else {
         slots[ts] = timer;
     }
-    return timer; // 为什么要返回这个指针呢？
+    return timer; 
 }
 
 void time_wheel::adjust_timer(tw_timer *timer, int time_slot) {
     if (nullptr == timer) return;
-    int diff_rotation = (time_slot) / N; // rotation 的差值
+    int diff_rotation = (time_slot) / (N*SI); // rotation 的差值
     int new_slot = (cur_slot + (time_slot) % N) % N; //修改后的slot
     int old_slot = timer->time_slot; // 修改前的slot
     if (timer == slots[old_slot]) { // 如果是第一个元素
@@ -128,134 +113,6 @@ void time_wheel::tick() {
 }
 
 
-
-// void sort_timer_lst::add_timer(util_timer *timer)
-// {
-//     if (!timer)
-//     {
-//         return;
-//     }
-//     if (!head)
-//     {
-//         head = tail = timer;
-//         return;
-//     }
-//     if (timer->expire < head->expire)
-//     {
-//         timer->next = head;
-//         head->prev = timer;
-//         head = timer;
-//         return;
-//     }
-//     add_timer(timer, head);
-// }
-// void sort_timer_lst::adjust_timer(util_timer *timer)
-// {
-//     if (!timer)
-//     {
-//         return;
-//     }
-//     util_timer *tmp = timer->next;
-//     if (!tmp || (timer->expire < tmp->expire))
-//     {
-//         return;
-//     }
-//     if (timer == head)
-//     {
-//         head = head->next;
-//         head->prev = NULL;
-//         timer->next = NULL;
-//         add_timer(timer, head);
-//     }
-//     else
-//     {
-//         timer->prev->next = timer->next;
-//         timer->next->prev = timer->prev;
-//         add_timer(timer, timer->next);
-//     }
-// }
-// void sort_timer_lst::del_timer(util_timer *timer)
-// {
-//     if (!timer)
-//     {
-//         return;
-//     }
-//     if ((timer == head) && (timer == tail))
-//     {
-//         delete timer;
-//         head = NULL;
-//         tail = NULL;
-//         return;
-//     }
-//     if (timer == head)
-//     {
-//         head = head->next;
-//         head->prev = NULL;
-//         delete timer;
-//         return;
-//     }
-//     if (timer == tail)
-//     {
-//         tail = tail->prev;
-//         tail->next = NULL;
-//         delete timer;
-//         return;
-//     }
-//     timer->prev->next = timer->next;
-//     timer->next->prev = timer->prev;
-//     delete timer;
-// }
-// void sort_timer_lst::tick()
-// {
-//     if (!head)
-//     {
-//         return;
-//     }
-    
-//     time_t cur = time(NULL);
-//     util_timer *tmp = head;
-//     while (tmp)
-//     {
-//         if (cur < tmp->expire)
-//         {
-//             break;
-//         }
-//         tmp->cb_func(tmp->user_data);
-//         head = tmp->next;
-//         if (head)
-//         {
-//             head->prev = NULL;
-//         }
-//         delete tmp;
-//         tmp = head;
-//     }
-// }
-
-// void sort_timer_lst::add_timer(util_timer *timer, util_timer *lst_head)
-// {
-//     util_timer *prev = lst_head;
-//     util_timer *tmp = prev->next;
-//     while (tmp)
-//     {
-//         if (timer->expire < tmp->expire)
-//         {
-//             prev->next = timer;
-//             timer->next = tmp;
-//             tmp->prev = timer;
-//             timer->prev = prev;
-//             break;
-//         }
-//         prev = tmp;
-//         tmp = tmp->next;
-//     }
-//     if (!tmp)
-//     {
-//         prev->next = timer;
-//         timer->prev = prev;
-//         timer->next = NULL;
-//         tail = timer;
-//     }
-// }
 
 void Utils::init(int timeslot)
 {

@@ -60,16 +60,16 @@ public:
 
 class time_wheel {
 private:
-    static const int N = 60; // 共有60个槽
-    static const int SI = 1; //时间间隔为1s
+    static const int N = 100; // 共有10个槽
+    static const int SI = 1; //时间间隔为 1s, 每间隔100s转一圈
     tw_timer* slots[N]; // 每个槽都是一个链表
     int cur_slot; // 当前槽
 public:
     time_wheel();
     ~time_wheel();
-    tw_timer* add_timer(int timeout);
+    tw_timer* add_timer(int timeout); // timeout单位是秒
     void del_timer(tw_timer *timer);
-    void adjust_timer(tw_timer *timer, int time_slot); // 向后延迟time_slot
+    void adjust_timer(tw_timer *timer, int time_slot); // 向后延迟time_slot毫秒
     void tick();
 };
 // class sort_timer_lst
